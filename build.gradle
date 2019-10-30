@@ -1,7 +1,7 @@
 plugins {
     id 'java'
 }
-
+apply plugin: 'jacoco'
 group 'com.xebia.app.store.retail.discounts'
 version '1.0-SNAPSHOT'
 
@@ -24,9 +24,34 @@ sourceSets {
     }
 }
 
+reporting.baseDir = "$buildDir/test-results-report"
+//testResultsDirName = "$buildDir/test-results"
+
+subprojects {
+    apply plugin: 'java'
+
+    test {
+        reports {
+            junitXml.enabled = false
+            html.enabled = true
+        }
+    }
+    sonarqube {
+        properties {
+            property "sonar.sources", "src"
+        }
+    }
+}
+
+task testReport(type: TestReport) {
+    destinationDir = file("$buildDir/reports/allTests")
+    // Include the results from the `test` task in all subprojects
+    reportOn subprojects*.test
+}
+
 jar {
     manifest {
-        attributes 'Main-Class': 'com.xebia.app.store.retail.discounts.app.api.RetailStoreDiscount'
+        attributes 'Main-Class': 'RetailStoreDiscount'
     }
 }
 
